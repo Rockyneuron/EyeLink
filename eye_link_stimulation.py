@@ -228,17 +228,15 @@ def main(display_size=(1024,768)):
     win = visual.Window(fullscr=full_screen,
                         monitor=mon,
                         screen=1,
-                        winType='pyglet',
+                        size=MON_SIZE,
+                        allowGUI=True,
+                        color=(110,110,110),
+                        colorSpace='rgb255',
                         units='pix')
 
 
     # get the native screen resolution used by PsychoPy
     scn_width, scn_height = win.size
-    # resolution fix for Mac retina displays
-    if 'Darwin' in platform.system():
-        if use_retina:
-            scn_width = int(scn_width/2.0)
-            scn_height = int(scn_height/2.0)
 
     # Pass the display pixel coordinates (left, top, right, bottom) to the tracker
     # see the EyeLink Installation Guide, "Customizing Screen Settings"
