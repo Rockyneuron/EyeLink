@@ -14,6 +14,8 @@ import logging
 import pylink
 import platform
 from pylsl import StreamInfo, StreamOutlet
+from PIL import Image  # for preparing the Host backdrop image
+
 # Show only critical log message in the PsychoPy console
 from psychopy import logging
 logging.console.setLevel(logging.CRITICAL)
@@ -78,12 +80,6 @@ def main(display_size=(1024,768)):
     # Set this variable to True to run the task in full screen mode
     # It is easier to debug the script in non-fullscreen mode
     full_screen = True
-
-    # Store the parameters of all trials in a list, [condition, image]
-    trials = [
-        ['cond_1', 'img_1.jpg'],
-        ['cond_2', 'img_2.jpg'],
-        ]
 
     # Set up EDF data file name and local data folder
     #
@@ -355,9 +351,9 @@ def main(display_size=(1024,768)):
     # Each parameter could be ''--default sound, 'off'--no sound, or a wav file
     # genv.setCalibrationSounds('', '', '')
 
-
+    genv.setup_cal_display()
     # Request Pylink to use the PsychoPy window we opened above for calibration
-    # pylink.openGraphicsEx(genv)
+    pylink.openGraphicsEx(genv)
 
     # Step 5: Set up the camera and calibrate the tracker
 
@@ -369,6 +365,25 @@ def main(display_size=(1024,768)):
     else:
         task_msg = task_msg + '\nNow, press ENTER twice to calibrate tracker'
     show_msg(win, task_msg)
+    
+    
+    # print('Press "Enter" to start the calibration')
+    if not dummy_mode:
+        try:
+            print('Enter: Show/Hide camera image\n' + \
+                            'Left/Right: Switch camera view\n' + \
+                            'C: Calibration\n' + \
+                            'V: Validation\n' + \
+                            'O: Start Recording\n' + \
+                            '+=/-: CR threshold\n' + \
+                            'Up/Down: Pupil threshold\n' + \
+                            'Alt+arrows: Search limit')
+            el_tracker.doTrackerSetup()
+  
+        except RuntimeError as err:
+            print('ERROR:', err)
+        el_tracker.exitCalibration()
+
 
     #  Step 6: Run the experimental trials, index all the trials
     # Get list of images.
@@ -416,41 +431,106 @@ def main(display_size=(1024,768)):
         'test': ['test_event']
     }
 
+    # Let everythng settle and say hello
+    for frame in range(round(hello_window_duration*MON_HZ)):
+        hello_image.draw()
+        win.flip()
 
-    # get a reference to the currently active EyeLink connection
-    el_tracker = pylink.getEYELINK()
+    # Start stimulation
+    start_input='start'
+    stim=True
+    while stim:
+        user_input=input('Type "start" to begin stimulation: \n')
+        if start_input==user_input:
+            print('Starting stimulation...')
+            sleep(2)
+            stim=False
+        elif start_input!=user_input:
+            print('Wrong input. Press control+c to skip program')
+        else:
+            raise ValueError("You have to input a string") 
 
-    # put the tracker in the offline mode first
-    el_tracker.setOfflineMode()
-
-    # clear the host screen before we draw the backdrop
-    el_tracker.sendCommand('clear_screen 0')
-
-    # put tracker in idle/offline mode before recording
-    el_tracker.setOfflineMode()
-
-    # Start recording
-    # arguments: sample_to_file, events_to_file, sample_over_link,
-    # event_over_link (1-yes, 0-no)
-    try:
-        el_tracker.startRecording(1, 1, 1, 1)
-    except RuntimeError as error:
-        print("ERROR:", error)
-        pylink.TRIAL_ERROR
-
-    # Allocate some time for the tracker to cache some samples
-    pylink.pumpDelay(100)
-
-    # show the image, and log a message to mark the onset of the image
-    clear_screen(win)
     for im_number, image_stim in enumerate(image_stim_vec):
+        print('stimulando movidas')
+
+        # # get a reference to the currently active EyeLink connection
+        el_tracker = pylink.getEYELINK()
+
+        # # put the tracker in the offline mode first
+        el_tracker.setOfflineMode()
+
+        # # clear the host screen before we draw the backdrop
+        el_tracker.sendCommand('clear_screen 0')
+        # Use the code commented below to convert the image and send the backdrop
+        im = Image.open(images[im_number])  # read image with PIL
+        im = im.resize((scn_width, scn_height))
+        img_pixels = im.load()  # access the pixel data of the image
+        pixels = [[img_pixels[i, j] for i in range(scn_width)]
+                for j in range(scn_height)]
+        el_tracker.bitmapBackdrop(scn_width, scn_height, pixels,
+                                0, 0, scn_width, scn_height,
+                                0, 0, pylink.BX_MAXCONTRAST)        
+        
+        # send a "TRIALID" message to mark the start of a trial, see Data
+        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+        el_tracker.sendMessage('TRIALID %d' % im_number)
+
+        # record_status_message : show some info on the Host PC
+        # here we show how many trial has been tested
+        status_msg = 'TRIAL number %d' % im_number
+        el_tracker.sendCommand("record_status_message '%s'" % status_msg)
+
+
+        # drift check
+        # we recommend drift-check at the beginning of each trial
+        # the doDriftCorrect() function requires target position in integers
+        # the last two arguments:
+        # draw_target (1-default, 0-draw the target then call doDriftCorrect)
+        # allow_setup (1-press ESCAPE to recalibrate, 0-not allowed)
+        #
+        # # # Skip drift-check if running the script in Dummy Mode
+        while not dummy_mode:
+            # terminate the task if no longer connected to the tracker or
+            # user pressed Ctrl-C to terminate the task
+            if (not el_tracker.isConnected()) or el_tracker.breakPressed():
+                terminate_task()
+                return pylink.ABORT_EXPT
+
+            # drift-check and re-do camera setup if ESCAPE is pressed
+            try:
+                error = el_tracker.doDriftCorrect(int(scn_width/2.0),
+                                                int(scn_height/2.0), 1, 1)
+                # break following a success drift-check
+                if error is not pylink.ESC_KEY:
+                    break
+            except:
+                pass
+    
+        # put tracker in idle/offline mode before recording
+        el_tracker.setOfflineMode()
+
+
+        # Start recording
+        # arguments: sample_to_file, events_to_file, sample_over_link,
+        # event_over_link (1-yes, 0-no)
+        try:
+            el_tracker.startRecording(1, 1, 1, 1)
+        except RuntimeError as error:
+            print("ERROR:", error)
+            abort_trial()
+            return pylink.TRIAL_ERROR
+        
+        # # Allocate some time for the tracker to cache some samples
+        pylink.pumpDelay(100)
+
         cm.tic()
         win.flip()
         el_tracker.sendMessage('blank_{}'.format(im_number))
-  
+        outlet.push_sample(['blank_{}'.format(im_number)])
+
         #Interstimulus
         for frame in range(INTERSTIMULUS_FRAMES-1):
-           win.flip()
+            win.flip()
         print('interstimulus time blank:')  
         cm.toc()
 
@@ -461,28 +541,68 @@ def main(display_size=(1024,768)):
         outlet.push_sample(['drift_point_{}'.format(im_number)])
 
         for frame in range(INTERSTIMULUS_FRAMES-1):
-           drift_point.draw()
-           win.flip()
+            drift_point.draw()
+            win.flip()
         print('interstimulus time drift correction:')
         cm.toc()
-                    
+
+        #Stimulus
         cm.tic()
         image_stim.draw()
         win.flip()
         el_tracker.sendMessage(images[im_number].name)
+        el_tracker.sendMessage('image_onset')
         outlet.push_sample([markers['event'][im_number].name])
-      
-        #Stimulus
+        img_onset_time = core.getTime()  # record the image onset time
+
+        # Send a message to clear the Data Viewer screen, get it ready for
+        # drawing the pictures during visualization
+        bgcolor_RGB = (116, 116, 116)
+        el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
+
+        # send over a message to specify where the image is stored relative
+        # to the EDF data file, see Data Viewer User Manual, "Protocol for
+        # EyeLink Data to Viewer Integration"
+        bg_image ='../../'+images[im_number].as_posix()
+        imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
+                                                            int(scn_width/2.0),
+                                                            int(scn_height/2.0),
+                                                            int(scn_width),
+                                                            int(scn_height))
+        el_tracker.sendMessage(imgload_msg)
+        RT = -1  # keep track of the response time
+
         for frame in range(STIMULUS_FRAMES-1):
             image_stim.draw()
             win.flip()
         win.getMovieFrame()        
         print('stimulus time:')
         cm.toc()
+        # get response time in ms, PsychoPy report time in sec
+        RT = int((core.getTime() - img_onset_time)*1000)
+
+        # clear the screen
+        clear_screen(win)
+        el_tracker.sendMessage('blank_screen')
+        # send a message to clear the Data Viewer screen as well
+        el_tracker.sendMessage('!V CLEAR 128 128 128')
+
+        # stop recording; add 100 msec to catch final events before stopping
+        pylink.pumpDelay(100)
+        el_tracker.stopRecording()
+
+        # record trial variables to the EDF data file, for details, see Data
+        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+        el_tracker.sendMessage('!V TRIAL_VAR condition %s' % im_number)
+        el_tracker.sendMessage('!V TRIAL_VAR image %s' % images[im_number].name)
+        el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
+
+        # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
+        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+        el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
 
         # Step 7: disconnect, download the EDF file, then terminate the task
-        terminate_task()
-
+    terminate_task()
 
 if __name__ == '__main__':
     try:
