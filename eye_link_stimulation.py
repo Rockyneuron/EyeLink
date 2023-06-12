@@ -15,6 +15,8 @@ import pylink
 import platform
 from pylsl import StreamInfo, StreamOutlet
 from PIL import Image  # for preparing the Host backdrop image
+import subprocess
+
 
 # Show only critical log message in the PsychoPy console
 from psychopy import logging
@@ -297,6 +299,7 @@ def main(display_size=(1024,768)):
             # Download the EDF data file from the Host PC to a local data folder
             # parameters: source_file_on_the_host, destination_file_on_local_drive
             local_edf = os.path.join(session_folder, session_identifier + '.EDF')
+        
             try:
                 el_tracker.receiveDataFile(edf_file, local_edf)
             except RuntimeError as error:
@@ -304,7 +307,9 @@ def main(display_size=(1024,768)):
 
             # Close the link to the tracker.
             el_tracker.close()
-
+            # transform to ascii file
+            subprocess.call(['C:\\Program Files (x86)\\SR Research\\EyeLink\\bin\\64\\edf2asc64.exe',
+                    local_edf])
         # close the PsychoPy window
         win.close()
 
@@ -603,6 +608,8 @@ def main(display_size=(1024,768)):
 
         # Step 7: disconnect, download the EDF file, then terminate the task
     terminate_task()
+    print()
+
 
 if __name__ == '__main__':
     try:
