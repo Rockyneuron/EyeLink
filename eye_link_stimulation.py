@@ -528,29 +528,6 @@ def main(display_size=(1024,768)):
         # # Allocate some time for the tracker to cache some samples
         pylink.pumpDelay(100)
 
-        cm.tic()
-        win.flip()
-        el_tracker.sendMessage('blank_{}'.format(im_number))
-        outlet.push_sample(['blank_{}'.format(im_number)])
-
-        #Interstimulus
-        for frame in range(INTERSTIMULUS_FRAMES-1):
-            win.flip()
-        print('interstimulus time blank:')  
-        cm.toc()
-
-        cm.tic()
-        drift_point.draw()
-        win.flip()
-        el_tracker.sendMessage('drift_point_{}'.format(im_number))
-        outlet.push_sample(['drift_point_{}'.format(im_number)])
-
-        for frame in range(INTERSTIMULUS_FRAMES-1):
-            drift_point.draw()
-            win.flip()
-        print('interstimulus time drift correction:')
-        cm.toc()
-
         #Stimulus
         cm.tic()
         image_stim.draw()
@@ -590,7 +567,7 @@ def main(display_size=(1024,768)):
         clear_screen(win)
         el_tracker.sendMessage('blank_screen')
         # send a message to clear the Data Viewer screen as well
-        el_tracker.sendMessage('!V CLEAR 128 128 128')
+        # el_tracker.sendMessage('!V CLEAR 128 128 128')
 
         # stop recording; add 100 msec to catch final events before stopping
         pylink.pumpDelay(100)
@@ -608,7 +585,6 @@ def main(display_size=(1024,768)):
 
         # Step 7: disconnect, download the EDF file, then terminate the task
     terminate_task()
-    print()
 
 
 if __name__ == '__main__':
@@ -617,3 +593,28 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('Killed by user')
         sys.exit(0)
+
+
+        # If want yo add some interstimulus
+        # cm.tic()
+        # win.flip()
+        # el_tracker.sendMessage('blank_{}'.format(im_number))
+        # outlet.push_sample(['blank_{}'.format(im_number)])
+
+        # #Interstimulus
+        # for frame in range(INTERSTIMULUS_FRAMES-1):
+        #     win.flip()
+        # print('interstimulus time blank:')  
+        # cm.toc()
+
+        # cm.tic()
+        # drift_point.draw()
+        # win.flip()
+        # el_tracker.sendMessage('drift_point_{}'.format(im_number))
+        # outlet.push_sample(['drift_point_{}'.format(im_number)])
+
+        # for frame in range(INTERSTIMULUS_FRAMES-1):
+        #     drift_point.draw()
+        #     win.flip()
+        # print('interstimulus time drift correction:')
+        # cm.toc()
