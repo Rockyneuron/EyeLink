@@ -310,8 +310,7 @@ def main(display_size=(1024,768)):
             el_tracker.closeDataFile()
 
             # Show a file transfer message on the screen
-            msg = 'EDF data is transferring from EyeLink Host PC...'
-            show_msg(win, msg, wait_for_keypress=False)
+            print('EDF data is transferring from EyeLink Host PC...')
 
             # Download the EDF data file from the Host PC to a local data folder
             # parameters: source_file_on_the_host, destination_file_on_local_drive
@@ -359,7 +358,7 @@ def main(display_size=(1024,768)):
             for frame in range(round(goodbye_window_duration*MON_HZ)):
                 goodbye_image.draw()
                 win.flip()
-                
+
         # close the PsychoPy window
         win.close()
 
