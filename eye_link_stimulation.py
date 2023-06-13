@@ -343,7 +343,23 @@ def main(display_size=(1024,768)):
                 asset_number,t_=asset.split('.')
                 final_name=asset_number+'_'+stimulus_order.strip() + '.tif'
                 previous_name.rename(target_dir / final_name)
+           
+            finish_input='f'
+            final_test=True
+            while final_test:
+                user_input=input('Do a Test before you end. Type "f" to finish the experiment": \n')
+                if finish_input==user_input:
+                    print('Ending experiment...')
+                    final_test=False
+                elif finish_input!=user_input:
+                    print('Wrong input. Press control+c to skip program')
+                else:
+                    raise ValueError("You have to input a string")   
 
+            for frame in range(round(goodbye_window_duration*MON_HZ)):
+                goodbye_image.draw()
+                win.flip()
+                
         # close the PsychoPy window
         win.close()
 
