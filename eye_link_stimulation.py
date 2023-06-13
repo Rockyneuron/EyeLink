@@ -250,6 +250,23 @@ def main(display_size=(1024,768)):
     # Configure a graphics environment (genv) for tracker calibration
     genv = EyeLinkCoreGraphicsPsychoPy(el_tracker, win)
     print(genv)  # print out the version number of the CoreGraphics library
+ 
+    def save_list_to_txt(my_list,list_path):
+        """Function to save list to a .txt
+            Args:
+            my_list (_type_): list to save as .txt
+            list_path (_type_): fullpath where to save list </.../.../.txt>
+        """
+        try:
+            with open(list_path, mode='x') as f:
+                for item in my_list:
+                    f.write(str(item) + '\n')
+        except FileExistsError:
+            with open(list_path, mode='w') as f:
+                for item in my_list:
+                    f.write(str(item) + '\n')
+        else:
+            print('Experiment images saved')            
 
     def clear_screen(win):
         """ clear up the PsychoPy window"""
@@ -310,6 +327,23 @@ def main(display_size=(1024,768)):
             # transform to ascii file
             subprocess.call(['C:\\Program Files (x86)\\SR Research\\EyeLink\\bin\\64\\edf2asc64.exe',
                     local_edf])
+            
+            # Save stimulation images
+            print('Saving stimulation images...')
+            win.saveMovieFrames(target_dir.joinpath(' .tif'))
+
+            # Save assets order images
+            print('Saving assets order list...')
+            save_list_to_txt(images_list,target_dir.joinpath('assets.txt'))
+                     
+            #Rename saved images
+            for asset, saved_stim_images in zip(images_list,os.listdir(target_dir)):
+                stimulus_order,_=os.path.splitext(saved_stim_images)
+                previous_name=target_dir.joinpath(saved_stim_images)
+                asset_number,t_=asset.split('.')
+                final_name=asset_number+'_'+stimulus_order.strip() + '.tif'
+                previous_name.rename(target_dir / final_name)
+
         # close the PsychoPy window
         win.close()
 
