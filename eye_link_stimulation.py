@@ -87,41 +87,41 @@ def main(display_size=(1024,768)):
     #
     # The EDF data filename should not exceed 8 alphanumeric characters
     # use ONLY number 0-9, letters, & _ (underscore) in the filename
-    edf_fname = 'TEST'
+    edf_fname = '001'
 
     # Prompt user to specify an EDF data filename
     # before we open a fullscreen window
-    dlg_title = 'Enter EDF File Name'
-    dlg_prompt = 'Please enter a file name with 8 or fewer characters\n' + \
-                '[letters, numbers, and underscore].'
+    # dlg_title = 'Enter EDF File Name'
+    # dlg_prompt = 'Please enter a file name with 8 or fewer characters\n' + \
+    #             '[letters, numbers, and underscore].'
 
-    # loop until we get a valid filename
-    while True:
-        dlg = gui.Dlg(dlg_title)
-        dlg.addText(dlg_prompt)
-        dlg.addField('File Name:', edf_fname)
-        # show dialog and wait for OK or Cancel
-        ok_data = dlg.show()
-        if dlg.OK:  # if ok_data is not None
-            print('EDF data filename: {}'.format(ok_data[0]))
-        else:
-            print('user cancelled')
-            core.quit()
-            sys.exit()
+    # # loop until we get a valid filename
+    # while True:
+    #     dlg = gui.Dlg(dlg_title)
+    #     dlg.addText(dlg_prompt)
+    #     dlg.addField('File Name:', edf_fname)
+    #     # show dialog and wait for OK or Cancel
+    #     ok_data = dlg.show()
+    #     if dlg.OK:  # if ok_data is not None
+    #         print('EDF data filename: {}'.format(ok_data[0]))
+    #     else:
+    #         print('user cancelled')
+    #         core.quit()
+    #         sys.exit()
 
-        # get the string entered by the experimenter
-        tmp_str = dlg.data[0]
-        # strip trailing characters, ignore the ".edf" extension
-        edf_fname = tmp_str.rstrip().split('.')[0]
+    #     # get the string entered by the experimenter
+    #     tmp_str = dlg.data[0]
+    #     # strip trailing characters, ignore the ".edf" extension
+    #     edf_fname = tmp_str.rstrip().split('.')[0]
 
         # check if the filename is valid (length <= 8 & no special char)
-        allowed_char = ascii_letters + digits + '_'
-        if not all([c in allowed_char for c in edf_fname]):
-            print('ERROR: Invalid EDF filename')
-        elif len(edf_fname) > 8:
-            print('ERROR: EDF filename should not exceed 8 characters')
-        else:
-            break
+        # allowed_char = ascii_letters + digits + '_'
+        # if not all([c in allowed_char for c in edf_fname]):
+        #     print('ERROR: Invalid EDF filename')
+        # elif len(edf_fname) > 8:
+        #     print('ERROR: EDF filename should not exceed 8 characters')
+        # else:
+        #     break
 
     # Set up a folder to store the EDF data files and the associated resources
     # e.g., files defining the interest areas used in each trial
@@ -410,16 +410,6 @@ def main(display_size=(1024,768)):
     pylink.openGraphicsEx(genv)
 
     # Step 5: Set up the camera and calibrate the tracker
-
-    # Show the task instructions
-    task_msg = 'In the task, you may press the SPACEBAR to end a trial\n' + \
-        '\nPress Ctrl-C to if you need to quit the task early\n'
-    if dummy_mode:
-        task_msg = task_msg + '\nNow, press ENTER to start the task'
-    else:
-        task_msg = task_msg + '\nNow, press ENTER twice to calibrate tracker'
-    show_msg(win, task_msg)
-    
     
     # print('Press "Enter" to start the calibration')
     if not dummy_mode:
@@ -505,7 +495,6 @@ def main(display_size=(1024,768)):
             raise ValueError("You have to input a string") 
 
     for im_number, image_stim in enumerate(image_stim_vec):
-        print('stimulando movidas')
 
         # # get a reference to the currently active EyeLink connection
         el_tracker = pylink.getEYELINK()
