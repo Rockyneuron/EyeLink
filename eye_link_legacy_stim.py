@@ -53,7 +53,7 @@ def main(display_size=(1024,768)):
     MON_SIZE = [1024, 768]  # Pixel-dimensions of your monitor
     MON_HZ=60.01 #Monitor frame rate in Hz 
     FIX_HEIGHT = 100  # Text height of fixation cross
-    stimulus_duration=1  #in seconds
+    stimulus_duration=6    #in seconds
     insterstimulus_duration=2
     hello_window_duration=10
     goodbye_window_duration=10
@@ -223,17 +223,13 @@ def main(display_size=(1024,768)):
     #
     # Open a window, be sure to specify monitor parameters
     mon = monitors.Monitor('myMonitor', width=63.0, distance=58.0)
-    # win = visual.Window(fullscr=full_screen,
-    #                     monitor=mon,
-    #                     screen=0,
-    #                     size=MON_SIZE,
-    #                     allowGUI=True,
-    #                     color=(110,110,110),
-    #                     colorSpace='rgb255',
-    #                     units='pix')
     win = visual.Window(fullscr=full_screen,
                         monitor=mon,
-                        winType='pyglet',
+                        screen=1,
+                        size=MON_SIZE,
+                        allowGUI=True,
+                        color=(110,110,110),
+                        colorSpace='rgb255',
                         units='pix')
 
 
