@@ -584,11 +584,14 @@ def main(display_size=(1024,768)):
         # to the EDF data file, see Data Viewer User Manual, "Protocol for
         # EyeLink Data to Viewer Integration"
         bg_image ='../../'+images[im_number].as_posix()
-        imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
-                                                            int(scn_width/2.0),
-                                                            int(scn_height/2.0),
-                                                            int(scn_width),
-                                                            int(scn_height))
+        # imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
+        #                                                     int(scn_width/2.0),
+        #                                                     int(scn_height/2.0),
+        #                                                     int(scn_width),
+        #                                                     int(scn_height))
+
+        imgload_msg = '!V IMGLOAD FILL {}'.format(bg_image)
+
         el_tracker.sendMessage(imgload_msg)
         RT = -1  # keep track of the response time
 
