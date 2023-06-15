@@ -225,7 +225,7 @@ def main(display_size=(1024,768)):
     mon = monitors.Monitor('myMonitor', width=63.0, distance=58.0)
     win = visual.Window(fullscr=full_screen,
                         monitor=mon,
-                        screen=0,
+                        screen=1,
                         size=MON_SIZE,
                         allowGUI=True,
                         color=(110,110,110),
