@@ -50,7 +50,7 @@ def main(display_size=(1024,768)):
     #Experiment parameters
     MON_DISTANCE = 60  # Distance between subject's eyes and monitor
     MON_WIDTH = 50  # Width of your monitor in cm
-    MON_SIZE = [1024, 768]  # Pixel-dimensions of your monitor
+    MON_SIZE = [2560, 1440]  # Pixel-dimensions of your monitor
     MON_HZ=60.01 #Monitor frame rate in Hz 
     FIX_HEIGHT = 100  # Text height of fixation cross
     stimulus_duration=1  #in seconds
@@ -223,22 +223,23 @@ def main(display_size=(1024,768)):
     #
     # Open a window, be sure to specify monitor parameters
     mon = monitors.Monitor('myMonitor', width=63.0, distance=58.0)
-    # win = visual.Window(fullscr=full_screen,
-    #                     monitor=mon,
-    #                     screen=0,
-    #                     size=MON_SIZE,
-    #                     allowGUI=True,
-    #                     color=(110,110,110),
-    #                     colorSpace='rgb255',
-    #                     units='pix')
     win = visual.Window(fullscr=full_screen,
                         monitor=mon,
-                        winType='pyglet',
+                        screen=0,
+                        size=MON_SIZE,
+                        allowGUI=True,
+                        color=(110,110,110),
+                        colorSpace='rgb255',
                         units='pix')
+    # win = visual.Window(fullscr=full_screen,
+    #                     monitor=mon,
+    #                     winType='pyglet',
+    #                     units='pix')
 
 
     # get the native screen resolution used by PsychoPy
     scn_width, scn_height = win.size
+    # scn_width, scn_height=MON_SIZE
 
     # Pass the display pixel coordinates (left, top, right, bottom) to the tracker
     # see the EyeLink Installation Guide, "Customizing Screen Settings"
