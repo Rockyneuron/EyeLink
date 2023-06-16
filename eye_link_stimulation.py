@@ -62,7 +62,7 @@ def main(display_size=(1024,768)):
 
     # Set up LabStreamingLayer stream.
     info = StreamInfo(name='DataSyncMarker', type='Tags', channel_count=1,
-                      channel_format='string', source_id='12345')
+                      channel_format='string', source_id='1234')
     outlet = StreamOutlet(info)  # Broadcast the stream.
 
     # Switch to the script folder
@@ -578,6 +578,7 @@ def main(display_size=(1024,768)):
         el_tracker.sendMessage(images[im_number].name)
         el_tracker.sendMessage('image_onset')
         outlet.push_sample([markers['event'][im_number].name])
+
         img_onset_time = core.getTime()  # record the image onset time
 
         # Send a message to clear the Data Viewer screen, get it ready for
@@ -606,6 +607,8 @@ def main(display_size=(1024,768)):
         win.getMovieFrame()        
         print('stimulus time:')
         cm.toc()
+        el_tracker.sendMessage('stimulus_end')
+
         # get response time in ms, PsychoPy report time in sec
         RT = int((core.getTime() - img_onset_time)*1000)
 
@@ -630,6 +633,8 @@ def main(display_size=(1024,768)):
         el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
 
         # Step 7: disconnect, download the EDF file, then terminate the task
+    el_tracker.sendMessage('EndOfExperiment')    
+    outlet.push_sample(['EndOfExperiment'])
     terminate_task()
 
 
