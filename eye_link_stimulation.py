@@ -225,7 +225,7 @@ def main(display_size=(1024,768)):
     mon = monitors.Monitor('myMonitor', width=63.0, distance=58.0)
     win = visual.Window(fullscr=full_screen,
                         monitor=mon,
-                        screen=1,
+                        screen=0,
                         size=MON_SIZE,
                         allowGUI=True,
                         color=(110,110,110),
@@ -348,10 +348,10 @@ def main(display_size=(1024,768)):
                 final_name=asset_number+'_'+stimulus_order.strip() + '.tif'
                 previous_name.rename(target_dir / final_name)
            
-            finish_input='f'
+            finish_input='finish'
             final_test=True
             while final_test:
-                user_input=input('Do a Test before you end. Type "f" to finish the experiment": \n')
+                user_input=input('Do a Test before you end. Type "finish" to finish the experiment": \n')
                 if finish_input==user_input:
                     print('Ending experiment...')
                     final_test=False
@@ -607,7 +607,7 @@ def main(display_size=(1024,768)):
         win.getMovieFrame()        
         print('stimulus time:')
         cm.toc()
-        el_tracker.sendMessage('stimulus_end')
+        el_tracker.sendMessage('image_offset')
 
         # get response time in ms, PsychoPy report time in sec
         RT = int((core.getTime() - img_onset_time)*1000)
