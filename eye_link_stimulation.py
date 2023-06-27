@@ -48,14 +48,17 @@ def main(display_size=(1024,768)):
         raise SystemError('Target directory for saved images is not empty')
     
     #Experiment parameters
-    MON_DISTANCE = 60  # Distance between subject's eyes and monitor
-    MON_WIDTH = 50  # Width of your monitor in cm
+    MON_DISTANCE_TOP = 1130  # Distance between subject's eyes and upper part of monitor (mm)
+    MON_DISTANCE_BOTTOM = 1160  # Distance between subject's eyes and bottom part of monitor (mm)
+    LINK_DISTANCE=550 #distance from eye to top knob of eye link
+    MON_WIDTH = 615  # Width of your display image monitor in mm
+    MON_HEIGHT = 340  # height of your display image monitor in mm
     MON_SIZE = [1920, 1080]  # Pixel-dimensions of your monitor
-    MON_HZ=60.01 #Monitor frame rate in Hz 
+    MON_HZ=120 #Monitor frame rate in Hz 
     FIX_HEIGHT = 100  # Text height of fixation cross
     stimulus_duration=6  #in seconds
     insterstimulus_duration=2
-    hello_window_duration=10
+    hello_window_duration=2
     goodbye_window_duration=10
     STIMULUS_FRAMES=round(MON_HZ*stimulus_duration)
     INTERSTIMULUS_FRAMES=round(MON_HZ*insterstimulus_duration)
@@ -175,6 +178,16 @@ def main(display_size=(1024,768)):
     # field in the bottom panel of the Inspector.
     preamble_text = 'RECORDED BY %s' % os.path.basename(__file__)
     el_tracker.sendCommand("add_file_preamble_text '%s'" % preamble_text)
+    el_tracker.sendMessage(f'width of display monitor: {MON_WIDTH} mm')
+    el_tracker.sendMessage(f'height of display monitor: {MON_HEIGHT} mm')
+    sleep(2)
+    el_tracker.sendMessage(f'display resolution: {MON_SIZE[0]} px, {MON_SIZE[1]} px')
+    el_tracker.sendMessage(f'eye to top screen distance: {MON_DISTANCE_TOP} mm')
+    sleep(2)
+    el_tracker.sendMessage(f'eye to bottom screen distance: {MON_DISTANCE_BOTTOM} mm')
+    el_tracker.sendMessage(f'monitor frecuency: {MON_HZ} Hz')
+    el_tracker.sendMessage(f'distance from eye to top knob of desktop mount: {LINK_DISTANCE} mm')
+
 
     # Step 3: Configure the tracker
     #
@@ -222,10 +235,10 @@ def main(display_size=(1024,768)):
     # Step 4: set up a graphics environment for calibration
     #
     # Open a window, be sure to specify monitor parameters
-    mon = monitors.Monitor('myMonitor', width=63.0, distance=58.0)
+    mon = monitors.Monitor('myMonitor', width=63.0, distance=113.0)
     win = visual.Window(fullscr=full_screen,
                         monitor=mon,
-                        screen=0,
+                        screen=1,
                         size=MON_SIZE,
                         allowGUI=True,
                         color=(110,110,110),
@@ -492,6 +505,8 @@ def main(display_size=(1024,768)):
         user_input=input('Type "start" to begin stimulation: \n')
         if start_input==user_input:
             print('Starting stimulation...')
+            el_tracker.sendMessage('start_of_experiment')
+            outlet.push_sample(['start_of_experiment'])
             sleep(2)
             stim=False
         elif start_input!=user_input:
@@ -569,7 +584,7 @@ def main(display_size=(1024,768)):
             return pylink.TRIAL_ERROR
         
         # # Allocate some time for the tracker to cache some samples
-        pylink.pumpDelay(100)
+        pylink.pumpDelay(500)
 
         #Stimulus
         cm.tic()
@@ -633,8 +648,8 @@ def main(display_size=(1024,768)):
         el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
 
         # Step 7: disconnect, download the EDF file, then terminate the task
-    el_tracker.sendMessage('EndOfExperiment')    
-    outlet.push_sample(['EndOfExperiment'])
+    el_tracker.sendMessage('end_of_experiment')    
+    outlet.push_sample(['end_of_experiment'])
     terminate_task()
 
 

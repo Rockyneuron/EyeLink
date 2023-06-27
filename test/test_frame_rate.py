@@ -7,4 +7,4 @@ import os
 
 
 
-cm.getActualFrameRate(monitor=1)
+cm.getActualFrameRate(monitor=0)
