@@ -1,5 +1,6 @@
 import sys
 import os
+import traceback
 import keyboard
 from time import sleep
 from psychopy import visual, core, event, monitors, gui
@@ -26,26 +27,26 @@ logging.console.setLevel(logging.DEBUG)
 
 def main(display_size=(1024,768)):
 
-    #Add arguments to indicate where stimulation images will be saved.
-    parser=argparse.ArgumentParser(
-        prog='Stimulation Protocol',
-        description="""Stimulation protocol for XSCAPE proyect. The program runs an 
-        randomised stimulation protocol and then saves the images in the provided Path
-        in the comand line.""" ,
-        epilog="""Rember to enter the path. To execute the program type in the console: 
-        python stimulation.py --path <full path for the saved images>""",
-        add_help=True,
-    )
-    parser.add_argument("path")
+    # #Add arguments to indicate where stimulation images will be saved.
+    # parser=argparse.ArgumentParser(
+    #     prog='Stimulation Protocol',
+    #     description="""Stimulation protocol for XSCAPE proyect. The program runs an 
+    #     randomised stimulation protocol and then saves the images in the provided Path
+    #     in the comand line.""" ,
+    #     epilog="""Rember to enter the path. To execute the program type in the console: 
+    #     python stimulation.py --path <full path for the saved images>""",
+    #     add_help=True,
+    # )
+    # parser.add_argument("path")
 
-    args=parser.parse_args()
-    target_dir = Path(args.path)
+    # args=parser.parse_args()
+    # target_dir = Path(args.path)
 
-    if not target_dir.exists():
-        raise SystemError("The target directory doesn't exist")
-    if len(os.listdir(Path(target_dir)))>0:
-        raise SystemError('Target directory for saved images is not empty')
-    
+    # if not target_dir.exists():
+    #     raise SystemError("The target directory doesn't exist")
+    # if len(os.listdir(Path(target_dir)))>0:
+    #     raise SystemError('Target directory for saved images is not empty')
+    target_dir=Path(r'C:\Users\xscape\Desktop\Exp_Prueba_EyeLink\salido_programa\image_order')
     #Experiment parameters
     MON_DISTANCE_TOP = 1130  # Distance between subject's eyes and upper part of monitor (mm)
     MON_DISTANCE_BOTTOM = 1160  # Distance between subject's eyes and bottom part of monitor (mm)
@@ -55,7 +56,7 @@ def main(display_size=(1024,768)):
     MON_SIZE = [1920, 1080]  # Pixel-dimensions of your monitor
     MON_HZ=60 #Monitor frame rate in Hz 
     FIX_HEIGHT = 100  # Text height of fixation cross
-    stimulus_duration=6  #in seconds
+    stimulus_duration=0.5  #in seconds
     insterstimulus_duration=2
     hello_window_duration=2
     goodbye_window_duration=10
@@ -79,7 +80,7 @@ def main(display_size=(1024,768)):
     use_retina = False
 
     # Set this variable to True to run the script in "Dummy Mode"
-    dummy_mode = False
+    dummy_mode = True
 
     # Set this variable to True to run the task in full screen mode
     # It is easier to debug the script in non-fullscreen mode
@@ -328,7 +329,7 @@ def main(display_size=(1024,768)):
             finish_input='finish'
             final_test=True
             while final_test:
-                user_input=input('Do a Test before you end. Type "finish" to finish the experiment": \n')
+                user_input=input('Type "finish" to finish the experiment": \n')
                 if finish_input==user_input:
                     print('Ending experiment...')
                     final_test=False
@@ -361,7 +362,7 @@ def main(display_size=(1024,768)):
         # clear the screen
         clear_screen(win)
         # Send a message to clear the Data Viewer screen
-        bgcolor_RGB = (116, 116, 116)
+        bgcolor_RGB = (110, 110, 110)
         el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
 
         # send a message to mark trial end
@@ -543,67 +544,72 @@ def main(display_size=(1024,768)):
         # # Allocate some time for the tracker to cache some samples
         pylink.pumpDelay(100)
 
-        #Stimulus
-        cm.tic()
-        image_stim.draw()
-        win.flip()
-        el_tracker.sendMessage(images[im_number].name)
-        el_tracker.sendMessage('image_onset')
-        outlet.push_sample([markers['event'][im_number].name])
-
-        img_onset_time = core.getTime()  # record the image onset time
-
-        # Send a message to clear the Data Viewer screen, get it ready for
-        # drawing the pictures during visualization
-        bgcolor_RGB = (116, 116, 116)
-        el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
-
-        # send over a message to specify where the image is stored relative
-        # to the EDF data file, see Data Viewer User Manual, "Protocol for
-        # EyeLink Data to Viewer Integration"
-        bg_image ='../../'+images[im_number].as_posix()
-        # imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
-        #                                                     int(scn_width/2.0),
-        #                                                     int(scn_height/2.0),
-        #                                                     int(scn_width),
-        #                                                     int(scn_height))
-
-        imgload_msg = '!V IMGLOAD FILL {}'.format(bg_image)
-
-        el_tracker.sendMessage(imgload_msg)
-        RT = -1  # keep track of the response time
-
-        for frame in range(STIMULUS_FRAMES-1):
+        try:
+            #Stimulus
+            cm.tic()
             image_stim.draw()
             win.flip()
-        win.getMovieFrame()        
-        print('stimulus time:')
-        cm.toc()
-        el_tracker.sendMessage('image_offset')
+            el_tracker.sendMessage(images[im_number].name)
+            el_tracker.sendMessage('image_onset')
+            outlet.push_sample([markers['event'][im_number].name])
 
-        # get response time in ms, PsychoPy report time in sec
-        RT = int((core.getTime() - img_onset_time)*1000)
+            img_onset_time = core.getTime()  # record the image onset time
 
-        # clear the screen
-        clear_screen(win)
-        el_tracker.sendMessage('blank_screen')
-        # send a message to clear the Data Viewer screen as well
-        # el_tracker.sendMessage('!V CLEAR 128 128 128')
+            # Send a message to clear the Data Viewer screen, get it ready for
+            # drawing the pictures during visualization
+            bgcolor_RGB = (116, 116, 116)
+            el_tracker.sendMessage('!V CLEAR %d %d %d' % bgcolor_RGB)
 
-        # stop recording; add 100 msec to catch final events before stopping
-        pylink.pumpDelay(100)
-        el_tracker.stopRecording()
+            # send over a message to specify where the image is stored relative
+            # to the EDF data file, see Data Viewer User Manual, "Protocol for
+            # EyeLink Data to Viewer Integration"
+            bg_image ='../../'+images[im_number].as_posix()
+            # imgload_msg = '!V IMGLOAD CENTER %s %d %d %d %d' % (bg_image,
+            #                                                     int(scn_width/2.0),
+            #                                                     int(scn_height/2.0),
+            #                                                     int(scn_width),
+            #                                                     int(scn_height))
 
-        # record trial variables to the EDF data file, for details, see Data
-        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
-        el_tracker.sendMessage('!V TRIAL_VAR condition %s' % im_number)
-        el_tracker.sendMessage('!V TRIAL_VAR image %s' % images[im_number].name)
-        el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
+            imgload_msg = '!V IMGLOAD FILL {}'.format(bg_image)
 
-        # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
-        # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
-        el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
+            el_tracker.sendMessage(imgload_msg)
+            RT = -1  # keep track of the response time
+        except Exception as e:
+            logging.error(traceback.format_exc())
 
+        try:
+            for frame in range(STIMULUS_FRAMES-1):
+                image_stim.draw()
+                win.flip()
+            win.getMovieFrame()        
+            print('stimulus time:')
+            cm.toc()
+            el_tracker.sendMessage('image_offset')
+
+            # get response time in ms, PsychoPy report time in sec
+            RT = int((core.getTime() - img_onset_time)*1000)
+
+            # clear the screen
+            clear_screen(win)
+            el_tracker.sendMessage('blank_screen')
+            # send a message to clear the Data Viewer screen as well
+            # el_tracker.sendMessage('!V CLEAR 128 128 128')
+
+            # stop recording; add 100 msec to catch final events before stopping
+            pylink.pumpDelay(100)
+            el_tracker.stopRecording()
+
+            # record trial variables to the EDF data file, for details, see Data
+            # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+            el_tracker.sendMessage('!V TRIAL_VAR condition %s' % im_number)
+            el_tracker.sendMessage('!V TRIAL_VAR image %s' % images[im_number].name)
+            el_tracker.sendMessage('!V TRIAL_VAR RT %d' % RT)
+
+            # send a 'TRIAL_RESULT' message to mark the end of trial, see Data
+            # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
+            el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_OK)
+        except Exception as e:
+            logging.error(traceback.format_exc())
         # Step 7: disconnect, download the EDF file, then terminate the task
     el_tracker.sendMessage('end_of_experiment')    
     outlet.push_sample(['end_of_experiment'])
@@ -616,3 +622,12 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('Killed by user')
         sys.exit(0)
+    except RuntimeError:
+        print('Bad things')
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        raise
+    else:
+        print('no exceptions caught')
+    finally:
+        print('program end')
