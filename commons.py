@@ -117,3 +117,21 @@ def toc(tempBool=True):
 def tic():
     # Records a time in TicToc, marks the beginning of a time interval
     toc(False)
+
+def save_list_to_txt(my_list:list,list_path:Path):
+    """Function to save list to a .txt
+
+    Args:
+        my_list (list): _description_
+        list_path (Path): _description_
+    """
+    try:
+        with open(list_path, mode='x') as f:
+            for item in my_list:
+                f.write(str(item) + '\n')
+    except FileExistsError:
+        with open(list_path, mode='w') as f:
+            for item in my_list:
+                f.write(str(item) + '\n')
+    else:
+        print('Experiment images saved')    
