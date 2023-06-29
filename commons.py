@@ -7,7 +7,8 @@ import msgpack as serializer
 import time
 import socket
 import sys
-import Path
+from pathlib import Path
+
 
 
 def check_capture_exists(ip_address, port):
