@@ -1,3 +1,6 @@
+
+
+
 import sys
 import os
 import keyboard
@@ -23,9 +26,8 @@ logging.console.setLevel(logging.DEBUG)
 
 """Code for eye link stimulation for the Xscape project.
 """
-
-def main(display_size=(1024,768)):
-
+def main():
+    
     #Add arguments to indicate where stimulation images will be saved.
     parser=argparse.ArgumentParser(
         prog='Stimulation Protocol',
@@ -55,7 +57,7 @@ def main(display_size=(1024,768)):
     MON_SIZE = [1920, 1080]  # Pixel-dimensions of your monitor
     MON_HZ=60 #Monitor frame rate in Hz 
     FIX_HEIGHT = 100  # Text height of fixation cross
-    stimulus_duration=6  #in seconds
+    stimulus_duration=0.5  #in seconds
     insterstimulus_duration=2
     hello_window_duration=2
     goodbye_window_duration=10
@@ -72,12 +74,6 @@ def main(display_size=(1024,768)):
     if len(script_path) != 0:
         os.chdir(script_path)
 
-    # Set this variable to True if you use the built-in retina screen as your
-    # primary display device on macOS. If have an external monitor, set this
-    # variable True if you choose to "Optimize for Built-in Retina Display"
-    # in the Displays preference settings.
-    use_retina = False
-
     # Set this variable to True to run the script in "Dummy Mode"
     dummy_mode = False
 
@@ -86,7 +82,6 @@ def main(display_size=(1024,768)):
     full_screen = True
 
     # Set up EDF data file name and local data folder
-    #
     # The EDF data filename should not exceed 8 alphanumeric characters
     # use ONLY number 0-9, letters, & _ (underscore) in the filename
     edf_fname = '001'
@@ -109,9 +104,6 @@ def main(display_size=(1024,768)):
         os.makedirs(session_folder)  
 
     #  Step 1: Connect to the EyeLink Host PC
-    #
-    # The Host IP address, by default, is "100.1.1.1".
-    # the "el_tracker" objected created here can be accessed through the Pylink
     # Set the Host PC address to "None" (without quotes) to run the script
     # in "Dummy Mode"
     if dummy_mode:
@@ -155,7 +147,6 @@ def main(display_size=(1024,768)):
 
 
     # Step 3: Configure the tracker
-    #
     # Put the tracker in offline mode before we change tracking parameters
     el_tracker.setOfflineMode()
 
@@ -208,15 +199,9 @@ def main(display_size=(1024,768)):
                         color=(110,110,110),
                         colorSpace='rgb255',
                         units='pix')
-    # win = visual.Window(fullscr=full_screen,
-    #                     monitor=mon,
-    #                     winType='pyglet',
-    #                     units='pix')
-
 
     # get the native screen resolution used by PsychoPy
     scn_width, scn_height = win.size
-    # scn_width, scn_height=MON_SIZE
 
     # Pass the display pixel coordinates (left, top, right, bottom) to the tracker
     # see the EyeLink Installation Guide, "Customizing Screen Settings"
@@ -267,6 +252,7 @@ def main(display_size=(1024,768)):
         win.flip()
 
     def terminate_task():
+
         """ Terminate the task gracefully and retrieve the EDF data file
 
         file_to_retrieve: The EDF on the Host that we would like to download
@@ -328,7 +314,7 @@ def main(display_size=(1024,768)):
             finish_input='finish'
             final_test=True
             while final_test:
-                user_input=input('Do a Test before you end. Type "finish" to finish the experiment": \n')
+                user_input=input('Type "finish" to finish the experiment": \n')
                 if finish_input==user_input:
                     print('Ending experiment...')
                     final_test=False
@@ -347,7 +333,9 @@ def main(display_size=(1024,768)):
         # quit PsychoPy
         core.quit()
         sys.exit()
+  
     def abort_trial():
+
         """Ends recording """
 
         el_tracker = pylink.getEYELINK()
@@ -368,6 +356,7 @@ def main(display_size=(1024,768)):
         el_tracker.sendMessage('TRIAL_RESULT %d' % pylink.TRIAL_ERROR)
 
         return pylink.TRIAL_ERROR
+    
     # Set background and foreground colors for the calibration target
     # in PsychoPy, (-1, -1, -1)=black, (1, 1, 1)=white, (0, 0, 0)=mid-gray
     foreground_color = (-1, -1, -1)
@@ -379,15 +368,11 @@ def main(display_size=(1024,768)):
     genv.setTargetType('circle')
 
     genv.setTargetSize(28)
-    # Beeps to play during calibration, validation and drift correction
-    # parameters: target, good, error
-    #     target -- sound to play when target moves
-    #     good -- sound to play on successful operation
-    #     error -- sound to play on failure or interruption
-    # Each parameter could be ''--default sound, 'off'--no sound, or a wav file
-    # genv.setCalibrationSounds('', '', '')
+
+    genv.setCalibrationSounds('off', 'off', 'off')
 
     genv.setup_cal_display()
+
     # Request Pylink to use the PsychoPy window we opened above for calibration
     pylink.openGraphicsEx(genv)
 
@@ -410,8 +395,6 @@ def main(display_size=(1024,768)):
             print('ERROR:', err)
         el_tracker.exitCalibration()
 
-
-    #  Step 6: Run the experimental trials, index all the trials
     # Get list of images.
     images_list=os.listdir(Path('OBJECTS'))   
     images_list=[im for im in images_list if '.tif' in im] 
@@ -473,11 +456,10 @@ def main(display_size=(1024,768)):
 
     for im_number, image_stim in enumerate(image_stim_vec):
 
-        # # get a reference to the currently active EyeLink connectionç
-        
+        # get a reference to the currently active EyeLink connection
         el_tracker = pylink.getEYELINK()
 
-        # # put the tracker in the offline mode first
+        # put the tracker in the offline mode first
         el_tracker.setOfflineMode()
 
         # # clear the host screen before we draw the backdrop

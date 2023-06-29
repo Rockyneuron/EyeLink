@@ -46,7 +46,7 @@ def main(display_size=(1024,768)):
     #     raise SystemError("The target directory doesn't exist")
     # if len(os.listdir(Path(target_dir)))>0:
     #     raise SystemError('Target directory for saved images is not empty')
-    target_dir=Path(r'C:\Users\xscape\Desktop\Exp_Prueba_EyeLink\salido_programa\image_order')
+    target_dir=Path(r'C:\Users\xscape\Desktop\prueba\eye_link_salida\image_order')
     #Experiment parameters
     MON_DISTANCE_TOP = 1130  # Distance between subject's eyes and upper part of monitor (mm)
     MON_DISTANCE_BOTTOM = 1160  # Distance between subject's eyes and bottom part of monitor (mm)
@@ -307,8 +307,8 @@ def main(display_size=(1024,768)):
             # Close the link to the tracker.
             el_tracker.close()
             # transform to ascii file
-            subprocess.call(['C:\\Program Files (x86)\\SR Research\\EyeLink\\bin\\64\\edf2asc64.exe',
-                    local_edf])
+            # subprocess.call(['C:\\Program Files (x86)\\SR Research\\EyeLink\\bin\\64\\edf2asc64.exe',
+            #         local_edf])
             
             # Save stimulation images
             print('Saving stimulation images...')
