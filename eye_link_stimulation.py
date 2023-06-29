@@ -22,12 +22,10 @@ Outputs:
     randomised stimuly.
     3) The results of the each experiment in .edf and ascii are saved in the
     results folder
-                                    Date: 2/02/2023
+                                    Date: 29/06/2023
                                     Xscape proyect
                                     Corresponding Author: Arturo Valiño                                
 """
-
-
 import sys
 import os
 import keyboard
@@ -50,7 +48,7 @@ logging.console.setLevel(logging.DEBUG)
 
 def main():
     
-    #Add arguments to indicate where stimulation images will be saved.
+    # Add arguments to indicate where stimulation images will be saved.
     parser=argparse.ArgumentParser(
         prog='Stimulation Protocol',
         description="""Stimulation protocol for XSCAPE proyect. The program runs an 
