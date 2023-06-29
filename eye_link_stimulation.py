@@ -1,4 +1,31 @@
+"""Code for presentation of stimulus fot the Xscape proyect.
+The code automatically executes the stimulation protocol for a 
+Eye Link experiment. It automatically conects and starts the recording.
+It also sends events to Emotibit and eye link and LSL to record the timstamp in which each event 
+was presented.  Is also automaticall sends the .edf data from the host pc to the display pc
+and transfors it to ascii file.
 
+Raises:
+    SystemExit: To cancel the execution
+    ConnectionError: If the connection during calibration fails
+
+To execute the code it is necessary to type in the console:
+python eye_link_stimulation.py --path <full path for the saved images>"
+
+Outputs:
+    1) Saved images in /presented_stimuly in the order of presentation.
+        Format: <ObjectName_stim_number.tif>
+        Where:
+        - ObjectName: is the .tif of each image in OBJECTS dir
+        - stim_number= is the stimulus number
+    2) /presented_stimuly/assests.txt with the order of presentation of the
+    randomised stimuly.
+    3) The results of the each experiment in .edf and ascii are saved in the
+    results folder
+                                    Date: 2/02/2023
+                                    Xscape proyect
+                                    Corresponding Author: Arturo Valiño                                
+"""
 
 
 import sys
@@ -18,14 +45,9 @@ import pylink
 from pylsl import StreamInfo, StreamOutlet
 from PIL import Image  # for preparing the Host backdrop image
 import subprocess
-
-
-# Show only critical log message in the PsychoPy console
 from psychopy import logging
 logging.console.setLevel(logging.DEBUG)
 
-"""Code for eye link stimulation for the Xscape project.
-"""
 def main():
     
     #Add arguments to indicate where stimulation images will be saved.
