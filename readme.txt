@@ -1,6 +1,37 @@
-This is an updated version of the eyelink app for python 2.6. In order for this to work, python needs to be correctly configured so that pylsl is on the PYTHONPATH environment variable. 
+## Stim protocol for Eye Link
 
-There is some metadata and the eyelink timestamps is recorded as one of the channels. 
+The code automatically executes the stimulation protocol for a 
+Eye Link experiment. It automatically conects and starts the recording.
+It also sends events to Emotibit and eye link and LSL to record the timstamp in which each event 
+was presented.  Is also automaticall sends the .edf data from the host pc to the display pc
+and transfors it to ascii file.
+
+To install the environment just execute:
+
+conda env create -f eye_link.yaml
+
+Once with the environment installed drop the fotos in .tif format you want
+for the screen stimulation in OBJECTS.
+
+To run the code:
+python stim_final3.py <dir>
+
+Where dir is the directory to save the stimulation images.
+
+For help type
+
+python stim_final3 -h
+
+Run the program and follow the instruction in the console.
+
+
+## De code is under development. Any contributions and suggestions are welcome. To 
+commit a pull request refer to the Xscape proyect corresponding author: 
+arturo-jose.valino@incipit.csic.es
+
+                                            Xscape Project (CSIC-INCIPIT) 02/03/2023
+                                            
+## Coments from eye link:
 
 This program will also write the data using EyeLinks native EDF format. A good way to control this (in Windows) is to make a shortcut, right click and open the properties dialogue. For the target, specify the full path to python 2.6, then the path to the program to which your shortcut is linked, eg:
 
