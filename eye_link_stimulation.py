@@ -31,23 +31,19 @@ import os
 import keyboard
 from time import sleep
 from psychopy import visual, core, event, monitors, gui
-from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy
 from string import ascii_letters, digits
 from pathlib import Path
 import random
 import commons as cm
 import time
 import argparse
-import logging
 import pylink
 from pylsl import StreamInfo, StreamOutlet
 from PIL import Image  # for preparing the Host backdrop image
 import subprocess
-from psychopy import logging
-logging.console.setLevel(logging.DEBUG)
+
 
 def main():
-    
     # Add arguments to indicate where stimulation images will be saved.
     parser=argparse.ArgumentParser(
         prog='Stimulation Protocol',
@@ -59,7 +55,6 @@ def main():
         add_help=True,
     )
     parser.add_argument("path")
-
     args=parser.parse_args()
     target_dir = Path(args.path)
 
@@ -68,6 +63,8 @@ def main():
     if len(os.listdir(Path(target_dir)))>0:
         raise SystemError('Target directory for saved images is not empty')
     
+    from EyeLinkCoreGraphicsPsychoPy import EyeLinkCoreGraphicsPsychoPy
+   
     #Experiment parameters
     MON_DISTANCE_TOP = 1130  # Distance between subject's eyes and upper part of monitor (mm)
     MON_DISTANCE_BOTTOM = 1160  # Distance between subject's eyes and bottom part of monitor (mm)
@@ -77,7 +74,7 @@ def main():
     MON_SIZE = [1920, 1080]  # Pixel-dimensions of your monitor
     MON_HZ=60 #Monitor frame rate in Hz 
     FIX_HEIGHT = 100  # Text height of fixation cross
-    stimulus_duration=0.5  #in seconds
+    stimulus_duration=6  #in seconds
     insterstimulus_duration=2
     hello_window_duration=2
     goodbye_window_duration=10
@@ -370,9 +367,9 @@ def main():
     # or a rotating "spiral".
     genv.setTargetType('circle')
 
-    genv.setTargetSize(28)
+    genv.setTargetSize(35)
 
-    genv.setCalibrationSounds('off', 'off', 'off')
+    genv.setCalibrationSounds('', '', '')
 
     genv.setup_cal_display()
 

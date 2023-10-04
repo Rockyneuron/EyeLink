@@ -34,7 +34,7 @@ from psychopy.sound import Sound
 
 #allow to disable sound, or if we failed to initialize pygame.mixer or failed to load audio file
 #continue experiment without sound.
-DISABLE_AUDIO=False
+DISABLE_AUDIO=True
 
 
 # Show only critical log message in the console
@@ -63,7 +63,7 @@ class EyeLinkCoreGraphicsPsychoPy(pylink.EyeLinkCustomDisplay):
         self._psychopyVer = int(psychopy.__version__.split('.')[0])
 
         self._display = win
-        self._display.mouseVisible = False  # set mouse cursor invisible
+        self._display.mouseVisible = True  # set mouse cursor invisible
 
         self._display.autoLog = False  # disable windows msg logging
         self._w, self._h = win.size
